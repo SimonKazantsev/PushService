@@ -4,7 +4,7 @@ class Message(BaseModel):
     title: str
     body: str
 
-class NotifiactionRequest(BaseModel):
+class NotificationRequest(BaseModel):
     channel_type: str
     message: Message
 
