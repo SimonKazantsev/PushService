@@ -4,6 +4,9 @@ from app.push_services.fcm import FCM
 from app.push_services.pypush import PyPushWoosh
 from app.push_services.pushbullet import PushBulletSender
 from app.models import NotifiactionRequest, NotificationResponse
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix='/api/v1/push')
 push_services: dict[str: NotificationSender] = {
@@ -15,7 +18,9 @@ push_services: dict[str: NotificationSender] = {
 async def send_push(request: NotifiactionRequest) -> NotificationResponse:
     service: NotificationSender = push_services.get(request.channel_type, None)
     if service:
+        logger.info(msg = 'push service choosed')
         try:
+            logger.info(msg = 'try to send message')
             service.send(request.message)
             return NotificationResponse(message = 'Succesfuly sent')
         except NotificationError as notification_error:

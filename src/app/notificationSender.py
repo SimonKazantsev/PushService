@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from app.models import Message
 
 class NotificationError(Exception):
     pass
@@ -6,5 +7,5 @@ class NotificationError(Exception):
 class NotificationSender(ABC):
     @classmethod
     @abstractmethod    
-    def send():
+    def send(message: Message):
         ...

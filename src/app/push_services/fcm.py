@@ -1,7 +1,14 @@
-from app.notificationSender import NotificationSender
+from app.notificationSender import NotificationSender, NotificationError
+from app.models import Message
 from firebase_admin import credentials, messaging
 import firebase_admin
 import os
+import logging
+from dotenv import load_dotenv
+
+load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 class FCM(NotificationSender):
     """Firebase Cloud Messaging."""
@@ -9,43 +16,40 @@ class FCM(NotificationSender):
     _initialized = False
 
     @classmethod
-    def initialize(cls, cred_path):
-        """Инициализация Firebase, выполняется только один раз."""
+    def initialize(cls):
+        """Инициализация Firebase."""
         if not cls._initialized:
             try:
-                cred = credentials.Certificate(cred_path)
+                cred = credentials.Certificate(cls.cred_path)
                 firebase_admin.initialize_app(cred)
-                print("Firebase initialized successfully.")
+                logger.info(msg = "Firebase initialized successfully.")
                 cls._initialized = True
             except FileNotFoundError:
-                print(f"Error: Credentials file not found at {cred_path}")
+                logger.info(msg = f"Error: Credentials file not found at {cls.cred_path}")
                 return False
             except Exception as e:
-                print(f"Error initializing Firebase: {e}")
+                logger.info(msg = f"Error initializing Firebase: {e}")
                 return False
         return True  
 
     @classmethod
-    def send(cls, registration_token, title, body, data=None):
+    def send(cls, message: Message):
         """Отправка сообщения."""
+        cls.initialize()
         if not cls._initialized:
-            print("Firebase not initialized. Call FCM.initialize() first.")
-            cls.initialize(cred_path = cls.cred_path)
-            return False
+            raise NotificationError
 
         message = messaging.Message(
             notification=messaging.Notification(
-                title=title,
-                body=body
+                title = message.title,
+                body = message.body
             ),
-            data=data,
-            token=registration_token,
         )
 
         try:
             response = messaging.send(message)
-            print(f"Successfully sent message: {response}")
+            logger.info(msg = f"Successfully sent message: {response}")
             return True
         except Exception as e:
-            print(f"Error sending message: {e}")
+            logger.info(msg = f"Error sending message: {e}")
             return False
