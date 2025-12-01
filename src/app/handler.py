@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from app.pypush import PyPushWoosh
-from app.pushbullet import PushBulletSender
+from app.push_services.pypush import PyPushWoosh
+from app.push_services.pushbullet import PushBulletSender
 
 router = APIRouter(prefix='/api/v1/push')
 

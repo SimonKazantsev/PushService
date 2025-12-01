@@ -4,8 +4,10 @@ from pypushwoosh.filter import ApplicationFilter
 from app.notificationSender import NotificationSender
 
 class PyPushWoosh(NotificationSender):
+    """PushWoosh."""
     @classmethod
     def send(cls):
+        """Отправка сообщения."""
         command = CreateTargetedMessageCommand()
         command.auth = "AUTH_TOKEN"
         command.content = 'TEXT'

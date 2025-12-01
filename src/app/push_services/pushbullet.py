@@ -4,8 +4,10 @@ from pushbullet.errors import InvalidKeyError, PushError
 from app.notificationSender import NotificationSender
 
 class PushBulletSender(NotificationSender):
+    """PushBullet."""
     @classmethod
     def send(cls):
+        """Отправка сообщения."""
         api_key = os.getenv('PUSHBULLET_API_KEY', None)
         try:
             pb = PushBullet(api_key)

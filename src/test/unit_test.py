@@ -1,6 +1,6 @@
 import pytest
 from pytest_mock import MockerFixture
-from app.fcm import FCM
+from app.push_services.fcm import FCM
 
 def test_send_message_FCM():
     response = FCM.send()
