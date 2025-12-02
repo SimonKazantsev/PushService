@@ -1,0 +1,42 @@
+import aio_pika
+import json
+import logging
+import asyncio
+from app.notificationSender import NotificationSender
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class RabbitMQConsumer:
+    def __init__(self, rabbitmq_url, queue_name):
+        self.rabbitmq_url = rabbitmq_url
+        self.queue_name = queue_name
+        self.connection = None
+        self.channel = None
+
+    async def connect(self):
+        """Устанавливает асинхронное соединение с RabbitMQ."""
+        self.connection = await aio_pika.connect_robust(self.rabbitmq_url)
+        self.channel = await self.connection.channel()
+        await self.channel.set_qos(prefetch_count=1) 
+        await self.channel.queue_declare(queue=self.queue_name, durable=True)
+
+    async def callback(self, message: aio_pika.IncomingMessage):
+        """Обрабатывает полученные сообщения."""
+        async with message.process():
+            body = message.body
+            message_data = json.loads(body)
+            logger.info(f"Received message: {message_data}")
+            await NotificationSender.async_send(message_data)
+
+    async def start_consuming(self):
+        """Запускает процесс прослушивания очереди."""
+        await self.connect() 
+        logger.info("Consuming...")
+        
+        await self.channel.consume(self.callback, queue=self.queue_name)
+
+    async def close_connection(self):
+        """Закрывает соединение с RabbitMQ."""
+        if self.connection:
+            await self.connection.close()

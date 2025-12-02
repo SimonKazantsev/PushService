@@ -7,5 +7,5 @@ class NotificationError(Exception):
 class NotificationSender(ABC):
     @classmethod
     @abstractmethod    
-    def send(message: Message):
+    async def async_send(message: Message):
         ...
