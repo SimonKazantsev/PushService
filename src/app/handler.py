@@ -20,7 +20,7 @@ async def send_push(request: NotificationRequest) -> NotificationResponse:
         logger.info(msg = 'push service choosed')
         try:
             logger.info(msg = 'try to send message')
-            service.send(request.message)
+            await service.async_send(request.message)
             return NotificationResponse(message = 'Succesfuly sent')
         except NotificationError:
             return NotificationResponse(message = 'Failed to sent message')
