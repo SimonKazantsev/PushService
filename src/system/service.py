@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from app.handler import router
 import logging
 
 logging.basicConfig(
@@ -8,4 +7,3 @@ logging.basicConfig(
 )
 
 app = FastAPI()
-app.include_router(router = router)

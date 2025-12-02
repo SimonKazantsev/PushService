@@ -7,6 +7,3 @@ class Message(BaseModel):
 class NotificationRequest(BaseModel):
     channel_type: str
     message: Message
-
-class NotificationResponse(BaseModel):
-    message: str

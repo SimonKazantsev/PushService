@@ -3,6 +3,7 @@ import json
 import logging
 import asyncio
 from app.notificationSender import NotificationSender
+from app.consumer_work import send_push
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -27,7 +28,7 @@ class RabbitMQConsumer:
             body = message.body
             message_data = json.loads(body)
             logger.info(f"Received message: {message_data}")
-            await NotificationSender.async_send(message_data)
+            await send_push(message = message_data)
 
     async def start_consuming(self):
         """Запускает процесс прослушивания очереди."""
