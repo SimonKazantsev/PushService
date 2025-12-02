@@ -3,7 +3,7 @@ import json
 import logging
 import asyncio
 from app.notificationSender import NotificationSender
-from app.consumer_work import send_push
+from app.rabbitmq.consumer_work import send_push
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ class RabbitMQConsumer:
         self.connection = await aio_pika.connect_robust(self.rabbitmq_url)
         self.channel = await self.connection.channel()
         await self.channel.set_qos(prefetch_count=1) 
-        await self.channel.queue_declare(queue=self.queue_name, durable=True)
+        self.queue = await self.channel.declare_queue(name=self.queue_name, durable=True)
 
     async def callback(self, message: aio_pika.IncomingMessage):
         """Обрабатывает полученные сообщения."""
@@ -35,7 +35,7 @@ class RabbitMQConsumer:
         await self.connect() 
         logger.info("Consuming...")
         
-        await self.channel.consume(self.callback, queue=self.queue_name)
+        await self.queue.consume(self.callback)
 
     async def close_connection(self):
         """Закрывает соединение с RabbitMQ."""
